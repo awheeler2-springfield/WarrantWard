@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Warrant Ward: Clinical Judgment Simulator</title>
+  <style>
+    :root {
+      --bg1: #07111f;
+      --bg2: #0f172a;
+      --panel: rgba(9, 17, 30, 0.9);
+      --panel-soft: rgba(20, 31, 52, 0.88);
+      --border: rgba(148, 163, 184, 0.24);
+      --text: #ecf5ff;
+      --muted: #b4c4da;
+      --accent: #5eead4;
+      --accent-2: #38bdf8;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #f43f5e;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(94, 234, 212, 0.11), transparent 22%),
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 24%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .panel, .hero {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -70px;
+      bottom: -70px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(94, 234, 212, 0.12), transparent 65%);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    .toprow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .badge, .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .badge {
+      background: rgba(94, 234, 212, 0.1);
+      border-color: rgba(94, 234, 212, 0.3);
+      color: #d8fffa;
+    }
+    .subtle { color: var(--muted); line-height: 1.6; }
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .panel { padding: 22px; }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .stat .label {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-bottom: 6px;
+    }
+    .stat .value {
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+    .meter { margin: 16px 0; }
+    .meter label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+    .bar {
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--warn), var(--accent-2), var(--good));
+      transition: width 0.35s ease;
+    }
+    .card {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 16px;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+    }
+    .card ul {
+      padding-left: 18px;
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .stage { display: none; }
+    .stage.show { display: block; }
+    .intake-grid, .case-grid, .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .box {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      padding: 14px;
+      font: inherit;
+      line-height: 1.5;
+    }
+    .prompt-label {
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .mission {
+      margin: 16px 0;
+      padding: 14px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.24);
+      border-radius: 16px;
+      color: #d9f5ff;
+      line-height: 1.55;
+    }
+    .options { display: grid; gap: 12px; margin: 16px 0; }
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 15px 16px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.2s ease, background 0.2s ease;
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+    .option:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: rgba(94, 234, 212, 0.65);
+      background: rgba(94, 234, 212, 0.08);
+    }
+    .option:disabled { cursor: default; }
+    .option.correct {
+      border-color: rgba(34, 197, 94, 0.72);
+      background: rgba(34, 197, 94, 0.12);
+    }
+    .option.wrong {
+      border-color: rgba(244, 63, 94, 0.7);
+      background: rgba(244, 63, 94, 0.12);
+    }
+    .feedback {
+      display: none;
+      margin-top: 14px;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+    }
+    .feedback.show { display: block; }
+    .feedback.good {
+      border-color: rgba(34, 197, 94, 0.48);
+      background: rgba(34, 197, 94, 0.1);
+    }
+    .feedback.bad {
+      border-color: rgba(244, 63, 94, 0.48);
+      background: rgba(244, 63, 94, 0.1);
+    }
+    .section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255,255,255,0.13);
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    button.primary, button.secondary {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #032436;
+    }
+    button.secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .hidden { display: none; }
+    @media (max-width: 940px) {
+      .layout, .intake-grid, .case-grid, .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="toprow">
+        <div>
+          <div class="badge">🏥 Clinical Judgment Simulator</div>
+          <h1>Warrant Ward: Diagnose the Missing Link</h1>
+        </div>
+        <div class="pill" id="phasePill">Phase 1 • Intake</div>
+      </div>
+      <p class="subtle">
+        In this ward, you do not move from patient data to clinical action by instinct alone. You use a reasoning bridge.
+        Toulmin calls that bridge the <strong>warrant</strong>. First complete intake. Then move through patient rounds and diagnose
+        the warrant that connects each chart’s grounds to its clinical claim.
+      </p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel">
+        <h2>Shift Dashboard</h2>
+        <div class="stats">
+          <div class="stat"><div class="label">Score</div><div class="value" id="score">0</div></div>
+          <div class="stat"><div class="label">Correct</div><div class="value" id="correct">0</div></div>
+          <div class="stat"><div class="label">Streak</div><div class="value" id="streak">0</div></div>
+          <div class="stat"><div class="label">Cases Left</div><div class="value" id="casesLeft">10</div></div>
+        </div>
+
+        <div class="meter">
+          <label><span>Clinical Reasoning Meter</span><span id="strengthLabel">0%</span></label>
+          <div class="bar"><div class="fill" id="strengthFill"></div></div>
+        </div>
+
+        <div class="card">
+          <h3>Ward legend</h3>
+          <ul>
+            <li><strong>Claim</strong> = the clinical conclusion or action</li>
+            <li><strong>Grounds</strong> = the signs, symptoms, chart data, or observations</li>
+            <li><strong>Warrant</strong> = the reasoning rule that connects the two</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Common misdiagnoses</h3>
+          <ul>
+            <li>Repeating the evidence instead of bridging it</li>
+            <li>Using a rule that is too absolute</li>
+            <li>Choosing a statement related to the topic but not the logic</li>
+          </ul>
+        </div>
+      </aside>
+
+      <main class="panel">
+        <section class="stage show" id="intakeStage">
+          <div class="toprow">
+            <h2>Phase 1: Clinical Intake</h2>
+            <div class="pill">New shift orientation</div>
+          </div>
+          <p class="subtle">
+            Before entering patient rooms, complete your reasoning intake.
+          </p>
+          <div class="intake-grid">
+            <div class="box">
+              <label class="prompt-label" for="defineWarrant">In your own words, what is a warrant?</label>
+              <textarea id="defineWarrant"></textarea>
+            </div>
+            <div class="box">
+              <label class="prompt-label" for="defineDifference">What does a warrant do between evidence and a conclusion?</label>
+              <textarea id="defineDifference"></textarea>
+            </div>
+          </div>
+          <div class="controls">
+            <button class="primary" id="submitIntakeBtn">Submit Intake & Start Rounds</button>
+            <button class="secondary" id="skipIntakeBtn">Skip Writing and Use Model</button>
+          </div>
+          <div class="feedback" id="intakeFeedback"></div>
+        </section>
+
+        <section class="stage" id="gameStage">
+          <div class="toprow">
+            <h2 id="caseTitle">Patient Case</h2>
+            <div class="pill" id="roundPill">Case 1 of 10</div>
+          </div>
+          <div class="mission">
+            Read the chart. Then choose the warrant that best explains why the grounds justify the claim. All options use similar structure. Focus on the logic.
+          </div>
+          <div class="case-grid">
+            <div class="box"><h3>Claim</h3><p id="claimText"></p></div>
+            <div class="box"><h3>Grounds</h3><p id="groundsText"></p></div>
+          </div>
+          <div class="options" id="options"></div>
+          <div class="feedback" id="feedbackBox">
+            <h3 id="feedbackTitle"></h3>
+            <p id="feedbackIntro"></p>
+            <div class="section"><strong>Why the correct warrant works:</strong><p id="correctWhy"></p></div>
+            <div class="section"><strong>Why your choice was right or wrong:</strong><p id="choiceWhy"></p></div>
+            <div class="section"><strong>Clinical reasoning note:</strong><p id="takeaway"></p></div>
+          </div>
+          <div class="controls">
+            <button class="primary hidden" id="nextBtn">Next Case</button>
+            <button class="secondary" id="restartBtn">Restart Shift</button>
+          </div>
+        </section>
+
+        <section class="stage" id="resultStage">
+          <h2>Phase 3: Attending Report</h2>
+          <p class="subtle" id="finalSummary"></p>
+          <div class="result-grid">
+            <div class="box"><h3>Performance summary</h3><ul id="performanceList"></ul></div>
+            <div class="box"><h3>Diagnostic advice</h3><ul id="adviceList"></ul></div>
+          </div>
+          <div class="box" style="margin-top:14px;">
+            <h3>Summative response</h3>
+            <p class="subtle">Why are warrants necessary in clinical reasoning? What goes wrong if a clinician moves from evidence to a conclusion without a clear warrant?</p>
+            <textarea id="summativeResponse"></textarea>
+            <div class="controls">
+              <button class="primary" id="submitSummativeBtn">Submit Reflection</button>
+            </div>
+            <div class="feedback" id="summativeFeedback"></div>
+          </div>
+          <div class="box" style="margin-top:14px;">
+            <h3>Your intake notes</h3>
+            <p><strong>AI-style intake diagnostic:</strong> <span id="savedIntakeNote"></span></p>
+            <p><strong>Your definition of warrant:</strong> <span id="savedWarrant"></span></p>
+            <p><strong>Your account of what a warrant does:</strong> <span id="savedDifference"></span></p>
+            <p><strong>Model comparison:</strong> A warrant is the reasoning principle that explains why particular findings support a particular clinical conclusion or action.</p>
+          </div>
+          <div class="controls">
+            <button class="primary" id="playAgainBtn">Start New Shift</button>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const cases = [
+      {
+        title: "Case 1: Dehydration Assessment",
+        claim: "This patient is likely dehydrated.",
+        grounds: "The patient reports very low fluid intake, has dry mucous membranes, and becomes dizzy when standing.",
+        correct: 1,
+        skillTag: "strong-link",
+        options: [
+          { text: "If findings are documented, they are clinically important to record during assessment.", reason: "This is relevant to charting but not to the inference. It does not explain why these findings support dehydration." },
+          { text: "If low intake appears with findings consistent with volume loss, dehydration becomes a reasonable conclusion.", reason: "This is the correct warrant because it states the reasoning bridge connecting the findings to the claim." },
+          { text: "If dizziness appears in a patient assessment, dehydration is always the correct diagnosis.", reason: "This is too absolute. It overstates what the grounds justify." },
+          { text: "If a patient is assessed for hydration, clinicians should review the chart before documenting care.", reason: "This concerns workflow, not the inferential link between grounds and claim." }
+        ],
+        takeaway: "A warrant is not another fact about the topic. It is the principle that licenses the move from data to conclusion."
+      },
+      {
+        title: "Case 2: Contact Precautions",
+        claim: "The nurse should initiate contact precautions for this patient.",
+        grounds: "The patient has a confirmed contagious skin infection that spreads primarily through direct touch.",
+        correct: 2,
+        skillTag: "irrelevant",
+        options: [
+          { text: "If a patient has an infectious condition, hospitals respond according to general infection-control procedures.", reason: "This is too broad and indirect. It does not tightly link this mode of transmission to this action." },
+          { text: "If a patient is admitted with an infection, some type of precaution may be considered during care.", reason: "This is plausible but too vague. It does not justify the specific claim." },
+          { text: "If transmission occurs through touch, reducing touch-based spread is a justified clinical response.", reason: "This is the correct warrant because it directly connects the mode of transmission to the action in the claim." },
+          { text: "If an infection is charted, every isolation precaution should be applied until discharge occurs.", reason: "This is overgeneralized and exceeds what the evidence supports." }
+        ],
+        takeaway: "Strong warrants fit the exact claim. They do not merely sound medically relevant."
+      },
+      {
+        title: "Case 3: Fall Risk Judgment",
+        claim: "This patient should be treated as a fall risk.",
+        grounds: "The patient is unsteady while ambulating, recently received a sedating medication, and nearly fell during the last transfer.",
+        correct: 0,
+        skillTag: "overgeneralization",
+        options: [
+          { text: "If instability, sedation, and a recent near-fall appear together, fall risk is meaningfully increased.", reason: "This is correct because it synthesizes the grounds into a justified risk inference." },
+          { text: "If a near-fall occurs during transfer, the event should be documented and reported to staff.", reason: "This may be true, but it does not function as the warrant for the claim being made." },
+          { text: "If a patient is hospitalized, the patient should always be classified as a fall risk regardless of findings.", reason: "This is too broad. It ignores the role of evidence in making the judgment." },
+          { text: "If patient safety is a nursing priority, risk labels should be used throughout inpatient care when possible.", reason: "This is topic-relevant but does not bridge these grounds to this claim." }
+        ],
+        takeaway: "A strong warrant often integrates several findings rather than repeating one piece of evidence."
+      },
+      {
+        title: "Case 4: Respiratory Escalation",
+        claim: "The nurse should notify the provider about worsening respiratory status.",
+        grounds: "Oxygen saturation dropped from 97% to 89%, and the patient is now using accessory muscles to breathe.",
+        correct: 3,
+        skillTag: "strong-link",
+        options: [
+          { text: "If pulse oximetry values change during care, the new value becomes part of the clinical record.", reason: "This describes documentation, not the reasoning bridge." },
+          { text: "If accessory muscle use is observed, the patient is displaying a visible sign that should be noted during assessment.", reason: "This paraphrases the evidence without explaining the inference." },
+          { text: "If oxygen saturation drops at any point, the patient is in immediate irreversible respiratory failure.", reason: "This overshoots the claim and exaggerates the evidence." },
+          { text: "If objective measures and visible signs both show respiratory decline, escalation to a provider is warranted.", reason: "This is the correct warrant because it links worsening findings to the action in the claim." }
+        ],
+        takeaway: "The warrant should justify the actual claim, not a more extreme claim the evidence does not support."
+      },
+      {
+        title: "Case 5: Pain Reassessment",
+        claim: "The patient’s pain-management plan should be reassessed.",
+        grounds: "The patient’s pain has risen from 3/10 to 8/10 despite receiving the current medication schedule.",
+        correct: 1,
+        skillTag: "claim-repeat",
+        options: [
+          { text: "If the pain score changes upward during treatment, the patient is reporting greater discomfort than earlier.", reason: "This restates the grounds rather than bridging them to the claim." },
+          { text: "If symptoms intensify while the current plan remains in place, the effectiveness of that plan should be reevaluated.", reason: "This is correct because it explains why rising pain under treatment justifies reassessment." },
+          { text: "If pain is reported during care, a stronger medication should always be administered immediately.", reason: "This is too absolute and also shifts to a different claim." },
+          { text: "If pain management is important in clinical care, nurses should continue monitoring pain throughout treatment.", reason: "This is topic-relevant but too generic to serve as the warrant here." }
+        ],
+        takeaway: "Many wrong answers merely rename the evidence. The warrant explains what the evidence justifies."
+      },
+      {
+        title: "Case 6: Medication Allergy Conflict",
+        claim: "The nurse should hold the medication and clarify the order.",
+        grounds: "The chart lists a documented allergy to the medication class that has just been ordered for the patient.",
+        correct: 2,
+        skillTag: "irrelevant",
+        options: [
+          { text: "If orders and allergies appear in the same chart, nurses should review both during medication administration.", reason: "This is workflow advice, not the inferential bridge to the claim." },
+          { text: "If a patient has a documented allergy, medication safety becomes an important concern during care.", reason: "This is too broad and does not clearly justify the specific action in the claim." },
+          { text: "If a documented allergy conflicts with a new order, administration should pause until the discrepancy is resolved.", reason: "This is the correct warrant because it directly links the conflict to the recommended response." },
+          { text: "If a medication order is entered in the chart, the order should always be questioned before any administration occurs.", reason: "This overgeneralizes and ignores the specific evidence driving concern in this case." }
+        ],
+        takeaway: "The strongest warrant names the clinical principle governing the response to the evidence."
+      },
+      {
+        title: "Case 7: Sepsis Watch",
+        claim: "This patient may require urgent evaluation for possible sepsis.",
+        grounds: "The patient has fever, tachycardia, hypotension, and a suspected infection source.",
+        correct: 0,
+        skillTag: "overgeneralization",
+        options: [
+          { text: "If systemic instability appears alongside probable infection, sepsis becomes a serious diagnostic concern.", reason: "This is correct because it links the cluster of findings to the claim without overstating certainty." },
+          { text: "If fever and tachycardia are both present, the chart reflects multiple abnormal findings during assessment.", reason: "This repeats the evidence rather than bridging it to the claim." },
+          { text: "If a patient develops fever in a clinical setting, sepsis is always the correct diagnosis until proven otherwise.", reason: "This is too absolute and goes well beyond what the evidence supports." },
+          { text: "If infection severity varies across cases, clinicians must continue gathering information during acute care.", reason: "This is reasonable but too indirect to serve as the warrant for this claim." }
+        ],
+        takeaway: "A warrant can be strong without being universal. It should justify the inference, not flatten it into certainty."
+      },
+      {
+        title: "Case 8: Patient Teaching Revision",
+        claim: "The nurse should adjust the teaching approach before discharge.",
+        grounds: "After instruction, the patient cannot accurately restate medication directions and appears confused about timing.",
+        correct: 3,
+        skillTag: "claim-repeat",
+        options: [
+          { text: "If the patient cannot repeat the instructions, the current teaching interaction has not yet produced clear recall.", reason: "This comes close, but it still mostly paraphrases the grounds rather than stating the broader principle." },
+          { text: "If discharge teaching matters in clinical care, nurses should spend time reviewing instructions with patients before departure.", reason: "This is too general and does not justify the specific need to revise the approach." },
+          { text: "If discharge education is provided, the same format should always be used regardless of patient understanding.", reason: "This is overgeneralized and ignores the logic of adjustment." },
+          { text: "If the patient cannot demonstrate understanding after instruction, the current teaching method has not yet done its job.", reason: "This is the correct warrant because it links failed teach-back to the need to change the method." }
+        ],
+        takeaway: "Teach-back findings are grounds. The warrant explains why those findings justify changing the approach."
+      },
+      {
+        title: "Case 9: Pressure Injury Prevention",
+        claim: "The patient needs more aggressive pressure-injury prevention measures.",
+        grounds: "The patient has limited mobility, fragile skin, and prolonged time in bed with minimal repositioning.",
+        correct: 1,
+        skillTag: "strong-link",
+        options: [
+          { text: "If mobility is limited during inpatient care, related assessment findings should be documented in the chart.", reason: "This concerns documentation, not the bridge from grounds to claim." },
+          { text: "If skin vulnerability combines with sustained pressure and reduced movement, risk of tissue injury rises substantially.", reason: "This is correct because it explains why the listed factors justify preventive action." },
+          { text: "If a patient remains in bed for several hours, a pressure injury will always develop very quickly.", reason: "This is an exaggeration that turns risk into inevitability." },
+          { text: "If pressure injuries are a quality concern in healthcare settings, prevention should remain part of nursing practice.", reason: "This is topic-relevant but not the precise warrant needed here." }
+        ],
+        takeaway: "A useful warrant often names the risk relationship that makes preventive action reasonable."
+      },
+      {
+        title: "Case 10: Discharge Readiness",
+        claim: "This patient is not yet ready for independent discharge.",
+        grounds: "The patient is still requiring assistance with ambulation, cannot explain the medication regimen, and has no confirmed transportation or home support plan.",
+        correct: 2,
+        skillTag: "irrelevant",
+        options: [
+          { text: "If multiple unresolved issues remain in the chart, discharge planning should continue until those issues are reviewed.", reason: "This is plausible but still a little too close to summary rather than a true warrant." },
+          { text: "If discharge planning is complex across clinical settings, patients may require different forms of support during recovery.", reason: "This is too broad and indirect to function as the warrant here." },
+          { text: "If a patient lacks functional independence, medication understanding, and a viable transition plan, discharge is not yet adequately supported.", reason: "This is the correct warrant because it clearly connects the combined deficits to the claim." },
+          { text: "If a patient is recovering after hospitalization, discharge should never occur until every part of recovery feels effortless.", reason: "This is unrealistic and universalized beyond what the grounds justify." }
+        ],
+        takeaway: "A strong warrant explains why several deficits together add up to a defensible clinical conclusion."
+      }
+    ];
+
+    let state = {};
+    const els = {
+      phasePill: document.getElementById('phasePill'),
+      score: document.getElementById('score'),
+      correct: document.getElementById('correct'),
+      streak: document.getElementById('streak'),
+      casesLeft: document.getElementById('casesLeft'),
+      strengthFill: document.getElementById('strengthFill'),
+      strengthLabel: document.getElementById('strengthLabel'),
+      intakeStage: document.getElementById('intakeStage'),
+      gameStage: document.getElementById('gameStage'),
+      resultStage: document.getElementById('resultStage'),
+      defineWarrant: document.getElementById('defineWarrant'),
+      defineDifference: document.getElementById('defineDifference'),
+      submitIntakeBtn: document.getElementById('submitIntakeBtn'),
+      skipIntakeBtn: document.getElementById('skipIntakeBtn'),
+      intakeFeedback: document.getElementById('intakeFeedback'),
+      caseTitle: document.getElementById('caseTitle'),
+      roundPill: document.getElementById('roundPill'),
+      claimText: document.getElementById('claimText'),
+      groundsText: document.getElementById('groundsText'),
+      options: document.getElementById('options'),
+      feedbackBox: document.getElementById('feedbackBox'),
+      feedbackTitle: document.getElementById('feedbackTitle'),
+      feedbackIntro: document.getElementById('feedbackIntro'),
+      correctWhy: document.getElementById('correctWhy'),
+      choiceWhy: document.getElementById('choiceWhy'),
+      takeaway: document.getElementById('takeaway'),
+      nextBtn: document.getElementById('nextBtn'),
+      restartBtn: document.getElementById('restartBtn'),
+      finalSummary: document.getElementById('finalSummary'),
+      performanceList: document.getElementById('performanceList'),
+      adviceList: document.getElementById('adviceList'),
+      savedWarrant: document.getElementById('savedWarrant'),
+      savedDifference: document.getElementById('savedDifference'),
+      playAgainBtn: document.getElementById('playAgainBtn'),
+      savedIntakeNote: document.getElementById('savedIntakeNote'),
+      submitSummativeBtn: document.getElementById('submitSummativeBtn'),
+      summativeFeedback: document.getElementById('summativeFeedback'),
+      summativeResponse: document.getElementById('summativeResponse')
+    };
+
+    function resetState() {
+      state = {
+        phase: 'intake',
+        index: 0,
+        score: 0,
+        correct: 0,
+        streak: 0,
+        answered: false,
+        intakeWarrant: '',
+        intakeDifference: '',
+        intakeVerdict: '',
+        intakeNote: '',
+        summativeVerdict: '',
+        summativeNote: '',
+        wrongTypes: {
+          'claim-repeat': 0,
+          'overgeneralization': 0,
+          'irrelevant': 0,
+          'strong-link': 0
+        }
+      };
+    }
+
+    function showStage(name) {
+      els.intakeStage.classList.remove('show');
+      els.gameStage.classList.remove('show');
+      els.resultStage.classList.remove('show');
+      if (name === 'intake') {
+        els.intakeStage.classList.add('show');
+        els.phasePill.textContent = 'Phase 1 • Intake';
+      } else if (name === 'game') {
+        els.gameStage.classList.add('show');
+        els.phasePill.textContent = 'Phase 2 • Patient Rounds';
+      } else {
+        els.resultStage.classList.add('show');
+        els.phasePill.textContent = 'Phase 3 • Attending Report';
+      }
+    }
+
+    function updateStats() {
+      els.score.textContent = state.score;
+      els.correct.textContent = state.correct;
+      els.streak.textContent = state.streak;
+      const left = state.phase === 'results' ? 0 : (cases.length - state.index);
+      els.casesLeft.textContent = left;
+      const pct = Math.round((state.correct / cases.length) * 100);
+      els.strengthFill.style.width = pct + '%';
+      els.strengthLabel.textContent = pct + '%';
+    }
+
+    function startNewShift() {
+      resetState();
+      els.defineWarrant.value = '';
+      els.defineDifference.value = '';
+      els.summativeResponse.value = '';
+      els.intakeFeedback.className = 'feedback';
+      els.intakeFeedback.innerHTML = '';
+      els.feedbackBox.className = 'feedback';
+      els.feedbackBox.innerHTML = `
+        <h3 id="feedbackTitle"></h3>
+        <p id="feedbackIntro"></p>
+        <div class="section"><strong>Why the correct warrant works:</strong><p id="correctWhy"></p></div>
+        <div class="section"><strong>Why your choice was right or wrong:</strong><p id="choiceWhy"></p></div>
+        <div class="section"><strong>Clinical reasoning note:</strong><p id="takeaway"></p></div>
+      `;
+      els.summativeFeedback.className = 'feedback';
+      els.summativeFeedback.innerHTML = '';
+      els.nextBtn.classList.add('hidden');
+      showStage('intake');
+      updateStats();
+    }
+
+    function analyzeIntakeResponse(warrantText, differenceText) {
+      const w = warrantText.toLowerCase();
+      const d = differenceText.toLowerCase();
+      const combined = `${w} ${d}`;
+
+      const mentionsBridge = /bridge|connect|link|between/.test(combined);
+      const mentionsReasoning = /reasoning|logic|rule|principle|explains why|justify|justifies|supports/.test(combined);
+      const mentionsEvidence = /evidence|data|fact|facts|finding|findings|symptom|symptoms|observation|observations|grounds/.test(combined);
+      const mentionsConclusion = /claim|conclusion|decision|action|judgment/.test(combined);
+      const contrastLanguage = /different|whereas|while|rather than|not the same|instead/.test(d);
+      const totalWords = warrantText.trim().split(/\s+/).filter(Boolean).length + differenceText.trim().split(/\s+/).filter(Boolean).length;
+
+      let verdict = 'developing';
+      let note = 'Developing definition. You are partly there, but make the bridge function more explicit: a warrant explains why findings justify a conclusion.';
+
+      if (totalWords < 12) {
+        verdict = 'too-short';
+        note = 'This response is very brief. Add a little more about function: a warrant is the reasoning that connects findings to a justified conclusion.';
+      }
+
+      if (mentionsEvidence && !mentionsReasoning && !mentionsBridge) {
+        verdict = 'evidence-confusion';
+        note = 'You are leaning toward describing evidence itself. A warrant is not the data; it explains what the data supports or justifies.';
+      }
+
+      if ((mentionsBridge || mentionsReasoning) && mentionsConclusion && mentionsEvidence) {
+        verdict = 'strong';
+        note = 'Strong intake. You identify both definition and function: a warrant is the reasoning bridge that connects findings or evidence to a clinical conclusion.';
+      } else if ((mentionsBridge || mentionsReasoning) && mentionsConclusion) {
+        verdict = 'functional';
+        note = 'Good functional understanding. You clearly see that a warrant helps move from evidence toward a conclusion, though you could name the evidence side a bit more directly.';
+      } else if ((mentionsBridge || mentionsReasoning) && mentionsEvidence) {
+        verdict = 'partial';
+        note = 'Good start. You recognize that a warrant involves reasoning, but clarify more explicitly that it connects evidence to a claim, conclusion, or action.';
+      }
+
+      if (contrastLanguage && verdict !== 'strong') {
+        note += ' You are also trying to distinguish warrant from evidence, which is productive.';
+      }
+
+      return { verdict, note };
+    }
+
+    function analyzeSummativeResponse(text) {
+      const t = text.toLowerCase();
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
+      const mentionsWhy = /why|because|justify|support|reasoning|logic|bridge|connect|link/.test(t);
+      const mentionsRisk = /wrong|error|mistake|unsafe|jump|assum|unsupported|weak|flaw|misread|bad decision|poor decision/.test(t);
+      const mentionsEvidence = /evidence|data|finding|findings|symptom|symptoms|grounds/.test(t);
+      const mentionsConclusion = /conclusion|claim|decision|action|judgment/.test(t);
+
+      let verdict = 'developing';
+      let title = 'Reflection received.';
+      let body = 'You submitted a reflection, but it would be stronger if it said more explicitly why warrants matter in moving from findings to conclusions.';
+      let cls = 'good';
+
+      if (words < 12) {
+        verdict = 'thin';
+        title = 'Reflection is a bit thin.';
+        body = 'Add one more sentence explaining what warrants prevent. For example, they keep clinicians from jumping from data to conclusions without a justified reasoning step.';
+        cls = 'bad';
+      } else if (mentionsWhy && mentionsRisk && mentionsEvidence && mentionsConclusion) {
+        verdict = 'strong';
+        title = 'Strong reflection.';
+        body = 'You identify both sides of the concept: warrants matter because they connect evidence to conclusions, and without them clinicians can make unsupported or unsafe inferential jumps.';
+      } else if (mentionsWhy && (mentionsEvidence || mentionsConclusion)) {
+        verdict = 'good';
+        title = 'Good reflection.';
+        body = 'You are capturing the core idea. To strengthen it further, name the consequence more directly: without a warrant, the move from findings to decision becomes under-justified.';
+      } else if (mentionsRisk) {
+        verdict = 'partial';
+        title = 'Partially developed reflection.';
+        body = 'You recognize that something goes wrong without warrants. Now make the positive side clearer: warrants explain why the evidence supports the conclusion.';
+      }
+
+      return { verdict, title, body, cls };
+    }
+
+    function submitIntake(useDefaults = false) {
+      state.intakeWarrant = useDefaults
+        ? 'A warrant is the reasoning that explains why the clinical findings support the conclusion or action.'
+        : (els.defineWarrant.value.trim() || 'No response entered.');
+      state.intakeDifference = useDefaults
+        ? 'A warrant bridges evidence and conclusion by explaining what the evidence justifies.'
+        : (els.defineDifference.value.trim() || 'No response entered.');
+
+      const intakeAnalysis = analyzeIntakeResponse(state.intakeWarrant, state.intakeDifference);
+      state.intakeVerdict = intakeAnalysis.verdict;
+      state.intakeNote = intakeAnalysis.note;
+
+      els.intakeFeedback.className = `feedback show ${intakeAnalysis.verdict === 'strong' || intakeAnalysis.verdict === 'functional' ? 'good' : 'bad'}`;
+      els.intakeFeedback.innerHTML = `
+        <h3>${intakeAnalysis.verdict === 'strong' ? 'Strong intake.' : intakeAnalysis.verdict === 'functional' ? 'Good intake.' : intakeAnalysis.verdict === 'partial' ? 'Partially developed intake.' : intakeAnalysis.verdict === 'evidence-confusion' ? 'Intake needs revision.' : intakeAnalysis.verdict === 'too-short' ? 'Intake is too brief.' : 'Intake needs development.'}</h3>
+        <p><strong>Quick diagnostic:</strong> ${state.intakeNote}</p>
+        <p><strong>Rounds will begin in a moment.</strong> Read this note before moving on.</p>
+        <div class="section">
+          <strong>Attending note:</strong>
+          <p><strong>Grounds</strong> are the charted findings, the <strong>claim</strong> is the clinical judgment or action, and the <strong>warrant</strong> is the reasoning bridge that makes that judgment defensible.</p>
+        </div>
+      `;
+
+      setTimeout(() => {
+        state.phase = 'game';
+        showStage('game');
+        renderCase();
+      }, 2200);
+    }
+
+    function renderCase() {
+      const current = cases[state.index];
+      state.answered = false;
+      els.caseTitle.textContent = current.title;
+      els.roundPill.textContent = `Case ${state.index + 1} of ${cases.length}`;
+      els.claimText.textContent = current.claim;
+      els.groundsText.textContent = current.grounds;
+      els.feedbackBox.className = 'feedback';
+      els.nextBtn.classList.add('hidden');
+      els.options.innerHTML = '';
+      current.options.forEach((option, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.innerHTML = `<strong>${String.fromCharCode(65 + idx)}.</strong> ${option.text}`;
+        btn.addEventListener('click', () => handleAnswer(idx));
+        els.options.appendChild(btn);
+      });
+      updateStats();
+    }
+
+    function handleAnswer(choiceIndex) {
+      if (state.answered) return;
+      state.answered = true;
+      const current = cases[state.index];
+      const correctIndex = current.correct;
+      const buttons = [...document.querySelectorAll('.option')];
+      const isCorrect = choiceIndex === correctIndex;
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === correctIndex) btn.classList.add('correct');
+        if (idx === choiceIndex && idx !== correctIndex) btn.classList.add('wrong');
+      });
+      if (isCorrect) {
+        state.correct += 1;
+        state.streak += 1;
+        state.score += 110 + (state.streak - 1) * 15;
+        els.feedbackBox.classList.add('show', 'good');
+        els.feedbackTitle.textContent = 'Correct clinical bridge.';
+        els.feedbackIntro.textContent = 'You identified the warrant that best explains why the grounds support the claim.';
+      } else {
+        state.streak = 0;
+        state.wrongTypes[current.skillTag] += 1;
+        els.feedbackBox.classList.add('show', 'bad');
+        els.feedbackTitle.textContent = 'Reasoning misdiagnosis.';
+        els.feedbackIntro.textContent = 'This option sounded plausible, but it did not supply the best inferential bridge.';
+      }
+      els.correctWhy.textContent = current.options[correctIndex].reason;
+      els.choiceWhy.textContent = current.options[choiceIndex].reason;
+      els.takeaway.textContent = current.takeaway;
+      els.nextBtn.textContent = state.index === cases.length - 1 ? 'View Attending Report' : 'Next Case';
+      els.nextBtn.classList.remove('hidden');
+      updateStats();
+    }
+
+    function finishGame() {
+      state.phase = 'results';
+      showStage('results');
+      updateStats();
+      const pct = Math.round((state.correct / cases.length) * 100);
+      let summary = `You completed rounds with ${state.correct} correct out of ${cases.length} (${pct}%). `;
+      if (pct >= 90) {
+        summary += 'Your warrant recognition was sharp: you consistently distinguished sound clinical reasoning from paraphrase, overstatement, and topic-only relevance.';
+      } else if (pct >= 70) {
+        summary += 'Your clinical reasoning is developing well, though some distractors still pulled you toward statements that sounded relevant without functioning as warrants.';
+      } else {
+        summary += 'You are beginning to identify warrants, but you still need practice separating evidence itself from the principle that explains what the evidence justifies.';
+      }
+      els.finalSummary.textContent = summary;
+      els.performanceList.innerHTML = [
+        `Final score: ${state.score}`,
+        `Correct warrants identified: ${state.correct}`,
+        `Cases completed: ${cases.length}`,
+        `Clinical reasoning meter: ${pct}%`,
+        `Final streak: ${state.streak}`
+      ].map(item => `<li>${item}</li>`).join('');
+      const wt = state.wrongTypes;
+      const advice = [];
+      if (Object.values(wt).every(v => v === 0)) {
+        advice.push('You avoided the common warrant errors of paraphrase, overgeneralization, and topic-only relevance.');
+        advice.push('You are ready for a harder version that asks students to draft their own warrants before selecting an option.');
+      } else {
+        if (wt['claim-repeat'] > 0) advice.push('Watch for answers that merely restate symptoms or chart details. Grounds are data; warrants explain what that data justifies.');
+        if (wt['overgeneralization'] > 0) advice.push('Be cautious of absolute language like “always.” Strong warrants justify a claim without turning it into certainty.');
+        if (wt['irrelevant'] > 0) advice.push('Some distractors sounded medically relevant but did not actually bridge the logic. Topic relevance is not warrant function.');
+        if (wt['strong-link'] > 0) advice.push('A useful test: place the option between the grounds and the claim. If the argument suddenly makes sense, you likely found the warrant.');
+      }
+      els.adviceList.innerHTML = advice.map(item => `<li>${item}</li>`).join('');
+      els.savedIntakeNote.textContent = state.intakeNote || 'No intake diagnostic available.';
+      els.savedWarrant.textContent = state.intakeWarrant;
+      els.savedDifference.textContent = state.intakeDifference;
+    }
+
+    function submitSummative() {
+      const response = els.summativeResponse.value.trim();
+      const analysis = analyzeSummativeResponse(response);
+      state.summativeVerdict = analysis.verdict;
+      state.summativeNote = analysis.body;
+      els.summativeFeedback.className = `feedback show ${analysis.cls}`;
+      els.summativeFeedback.innerHTML = `
+        <h3>${analysis.title}</h3>
+        <p>${analysis.body}</p>
+      `;
+    }
+
+    els.submitIntakeBtn.addEventListener('click', () => submitIntake(false));
+    els.skipIntakeBtn.addEventListener('click', () => submitIntake(true));
+    els.nextBtn.addEventListener('click', () => {
+      if (state.index === cases.length - 1) finishGame();
+      else { state.index += 1; renderCase(); }
+    });
+    els.restartBtn.addEventListener('click', startNewShift);
+    els.playAgainBtn.addEventListener('click', startNewShift);
+    els.submitSummativeBtn.addEventListener('click', submitSummative);
+
+    startNewShift();
+  </script>
+</body>
+</html>
