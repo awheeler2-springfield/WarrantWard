@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+from pathlib import Path
+
+html = r'''<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -22,6 +24,7 @@
     }
 
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Inter, Arial, Helvetica, sans-serif;
@@ -32,7 +35,9 @@
         linear-gradient(160deg, var(--bg1), var(--bg2));
       min-height: 100vh;
     }
+
     .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+
     .panel, .hero {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -40,12 +45,14 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
     }
+
     .hero {
       padding: 28px;
       margin-bottom: 18px;
       position: relative;
       overflow: hidden;
     }
+
     .hero::after {
       content: "";
       position: absolute;
@@ -56,7 +63,9 @@
       border-radius: 50%;
       background: radial-gradient(circle, rgba(94, 234, 212, 0.12), transparent 65%);
     }
+
     h1, h2, h3, p { margin-top: 0; }
+
     .toprow {
       display: flex;
       align-items: center;
@@ -64,6 +73,7 @@
       gap: 12px;
       flex-wrap: wrap;
     }
+
     .badge, .pill {
       display: inline-flex;
       align-items: center;
@@ -75,41 +85,51 @@
       background: rgba(255,255,255,0.05);
       color: var(--muted);
     }
+
     .badge {
       background: rgba(94, 234, 212, 0.1);
       border-color: rgba(94, 234, 212, 0.3);
       color: #d8fffa;
     }
+
     .subtle { color: var(--muted); line-height: 1.6; }
+
     .layout {
       display: grid;
       grid-template-columns: 320px 1fr;
       gap: 18px;
       align-items: start;
     }
+
     .panel { padding: 22px; }
+
     .stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-bottom: 16px;
     }
+
     .stat {
       background: var(--panel-soft);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 14px;
     }
+
     .stat .label {
       color: var(--muted);
       font-size: 0.84rem;
       margin-bottom: 6px;
     }
+
     .stat .value {
       font-size: 1.45rem;
       font-weight: 800;
     }
+
     .meter { margin: 16px 0; }
+
     .meter label {
       display: flex;
       justify-content: space-between;
@@ -117,6 +137,7 @@
       font-size: 0.92rem;
       color: var(--muted);
     }
+
     .bar {
       height: 14px;
       border-radius: 999px;
@@ -124,12 +145,14 @@
       overflow: hidden;
       border: 1px solid var(--border);
     }
+
     .fill {
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, var(--warn), var(--accent-2), var(--good));
       transition: width 0.35s ease;
     }
+
     .card {
       margin-top: 16px;
       padding: 14px;
@@ -137,26 +160,32 @@
       background: var(--panel-soft);
       border: 1px solid var(--border);
     }
+
     .card ul {
       padding-left: 18px;
       margin-bottom: 0;
       color: var(--muted);
       line-height: 1.55;
     }
+
     .stage { display: none; }
     .stage.show { display: block; }
+
     .intake-grid, .case-grid, .result-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
+
     .box {
       background: var(--panel-soft);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 16px;
     }
+
     .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+
     textarea {
       width: 100%;
       min-height: 120px;
@@ -169,11 +198,13 @@
       font: inherit;
       line-height: 1.5;
     }
+
     .prompt-label {
       font-weight: 700;
       margin-bottom: 8px;
       display: block;
     }
+
     .mission {
       margin: 16px 0;
       padding: 14px;
@@ -183,7 +214,9 @@
       color: #d9f5ff;
       line-height: 1.55;
     }
+
     .options { display: grid; gap: 12px; margin: 16px 0; }
+
     .option {
       width: 100%;
       text-align: left;
@@ -197,20 +230,25 @@
       font-size: 0.98rem;
       line-height: 1.45;
     }
+
     .option:hover:not(:disabled) {
       transform: translateY(-2px);
       border-color: rgba(94, 234, 212, 0.65);
       background: rgba(94, 234, 212, 0.08);
     }
+
     .option:disabled { cursor: default; }
+
     .option.correct {
       border-color: rgba(34, 197, 94, 0.72);
       background: rgba(34, 197, 94, 0.12);
     }
+
     .option.wrong {
       border-color: rgba(244, 63, 94, 0.7);
       background: rgba(244, 63, 94, 0.12);
     }
+
     .feedback {
       display: none;
       margin-top: 14px;
@@ -218,27 +256,71 @@
       border-radius: 18px;
       border: 1px solid var(--border);
       background: rgba(255,255,255,0.05);
+      line-height: 1.55;
     }
+
     .feedback.show { display: block; }
+
     .feedback.good {
       border-color: rgba(34, 197, 94, 0.48);
       background: rgba(34, 197, 94, 0.1);
     }
+
     .feedback.bad {
       border-color: rgba(244, 63, 94, 0.48);
       background: rgba(244, 63, 94, 0.1);
     }
+
+    .feedback.neutral {
+      border-color: rgba(56, 189, 248, 0.48);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
     .section {
       margin-top: 12px;
       padding-top: 12px;
       border-top: 1px dashed rgba(255,255,255,0.13);
     }
+
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .mini-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .mini-card.good-border {
+      border-color: rgba(34, 197, 94, 0.55);
+    }
+
+    .mini-card.bad-border {
+      border-color: rgba(244, 63, 94, 0.55);
+    }
+
+    .mini-label {
+      display: inline-block;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
     .controls {
       display: flex;
       gap: 12px;
       margin-top: 18px;
       flex-wrap: wrap;
     }
+
     button.primary, button.secondary {
       border: 0;
       border-radius: 14px;
@@ -247,21 +329,28 @@
       font-weight: 800;
       cursor: pointer;
     }
+
     button.primary {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
       color: #032436;
     }
+
     button.secondary {
       background: rgba(255,255,255,0.08);
       color: var(--text);
       border: 1px solid var(--border);
     }
+
     .hidden { display: none; }
+
     @media (max-width: 940px) {
-      .layout, .intake-grid, .case-grid, .result-grid { grid-template-columns: 1fr; }
+      .layout, .intake-grid, .case-grid, .result-grid, .feedback-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <section class="hero">
@@ -282,6 +371,7 @@
     <div class="layout">
       <aside class="panel">
         <h2>Shift Dashboard</h2>
+
         <div class="stats">
           <div class="stat"><div class="label">Score</div><div class="value" id="score">0</div></div>
           <div class="stat"><div class="label">Correct</div><div class="value" id="correct">0</div></div>
@@ -319,23 +409,26 @@
             <h2>Phase 1: Clinical Intake</h2>
             <div class="pill">New shift orientation</div>
           </div>
-          <p class="subtle">
-            Before entering patient rooms, complete your reasoning intake.
-          </p>
+
+          <p class="subtle">Before entering patient rooms, complete your reasoning intake.</p>
+
           <div class="intake-grid">
             <div class="box">
               <label class="prompt-label" for="defineWarrant">In your own words, what is a warrant?</label>
               <textarea id="defineWarrant"></textarea>
             </div>
+
             <div class="box">
               <label class="prompt-label" for="defineDifference">What does a warrant do between evidence and a conclusion?</label>
               <textarea id="defineDifference"></textarea>
             </div>
           </div>
+
           <div class="controls">
             <button class="primary" id="submitIntakeBtn">Submit Intake & Start Rounds</button>
             <button class="secondary" id="skipIntakeBtn">Skip Writing and Use Model</button>
           </div>
+
           <div class="feedback" id="intakeFeedback"></div>
         </section>
 
@@ -344,21 +437,20 @@
             <h2 id="caseTitle">Patient Case</h2>
             <div class="pill" id="roundPill">Case 1 of 10</div>
           </div>
+
           <div class="mission">
             Read the chart. Then choose the warrant that best explains why the grounds justify the claim. All options use similar structure. Focus on the logic.
           </div>
+
           <div class="case-grid">
             <div class="box"><h3>Claim</h3><p id="claimText"></p></div>
             <div class="box"><h3>Grounds</h3><p id="groundsText"></p></div>
           </div>
+
           <div class="options" id="options"></div>
-          <div class="feedback" id="feedbackBox">
-            <h3 id="feedbackTitle"></h3>
-            <p id="feedbackIntro"></p>
-            <div class="section"><strong>Why the correct warrant works:</strong><p id="correctWhy"></p></div>
-            <div class="section"><strong>Why your choice was right or wrong:</strong><p id="choiceWhy"></p></div>
-            <div class="section"><strong>Clinical reasoning note:</strong><p id="takeaway"></p></div>
-          </div>
+
+          <div class="feedback" id="feedbackBox"></div>
+
           <div class="controls">
             <button class="primary hidden" id="nextBtn">Next Case</button>
             <button class="secondary" id="restartBtn">Restart Shift</button>
@@ -368,10 +460,12 @@
         <section class="stage" id="resultStage">
           <h2>Phase 3: Attending Report</h2>
           <p class="subtle" id="finalSummary"></p>
+
           <div class="result-grid">
             <div class="box"><h3>Performance summary</h3><ul id="performanceList"></ul></div>
             <div class="box"><h3>Diagnostic advice</h3><ul id="adviceList"></ul></div>
           </div>
+
           <div class="box" style="margin-top:14px;">
             <h3>Summative response</h3>
             <p class="subtle">Why are warrants necessary in clinical reasoning? What goes wrong if a clinician moves from evidence to a conclusion without a clear warrant?</p>
@@ -381,6 +475,7 @@
             </div>
             <div class="feedback" id="summativeFeedback"></div>
           </div>
+
           <div class="box" style="margin-top:14px;">
             <h3>Your intake notes</h3>
             <p><strong>AI-style intake diagnostic:</strong> <span id="savedIntakeNote"></span></p>
@@ -388,6 +483,7 @@
             <p><strong>Your account of what a warrant does:</strong> <span id="savedDifference"></span></p>
             <p><strong>Model comparison:</strong> A warrant is the reasoning principle that explains why particular findings support a particular clinical conclusion or action.</p>
           </div>
+
           <div class="controls">
             <button class="primary" id="playAgainBtn">Start New Shift</button>
           </div>
@@ -541,6 +637,7 @@
     ];
 
     let state = {};
+
     const els = {
       phasePill: document.getElementById('phasePill'),
       score: document.getElementById('score'),
@@ -563,11 +660,6 @@
       groundsText: document.getElementById('groundsText'),
       options: document.getElementById('options'),
       feedbackBox: document.getElementById('feedbackBox'),
-      feedbackTitle: document.getElementById('feedbackTitle'),
-      feedbackIntro: document.getElementById('feedbackIntro'),
-      correctWhy: document.getElementById('correctWhy'),
-      choiceWhy: document.getElementById('choiceWhy'),
-      takeaway: document.getElementById('takeaway'),
       nextBtn: document.getElementById('nextBtn'),
       restartBtn: document.getElementById('restartBtn'),
       finalSummary: document.getElementById('finalSummary'),
@@ -609,6 +701,7 @@
       els.intakeStage.classList.remove('show');
       els.gameStage.classList.remove('show');
       els.resultStage.classList.remove('show');
+
       if (name === 'intake') {
         els.intakeStage.classList.add('show');
         els.phasePill.textContent = 'Phase 1 • Intake';
@@ -625,8 +718,10 @@
       els.score.textContent = state.score;
       els.correct.textContent = state.correct;
       els.streak.textContent = state.streak;
+
       const left = state.phase === 'results' ? 0 : (cases.length - state.index);
       els.casesLeft.textContent = left;
+
       const pct = Math.round((state.correct / cases.length) * 100);
       els.strengthFill.style.width = pct + '%';
       els.strengthLabel.textContent = pct + '%';
@@ -634,22 +729,22 @@
 
     function startNewShift() {
       resetState();
+
       els.defineWarrant.value = '';
       els.defineDifference.value = '';
       els.summativeResponse.value = '';
+
       els.intakeFeedback.className = 'feedback';
       els.intakeFeedback.innerHTML = '';
+
       els.feedbackBox.className = 'feedback';
-      els.feedbackBox.innerHTML = `
-        <h3 id="feedbackTitle"></h3>
-        <p id="feedbackIntro"></p>
-        <div class="section"><strong>Why the correct warrant works:</strong><p id="correctWhy"></p></div>
-        <div class="section"><strong>Why your choice was right or wrong:</strong><p id="choiceWhy"></p></div>
-        <div class="section"><strong>Clinical reasoning note:</strong><p id="takeaway"></p></div>
-      `;
+      els.feedbackBox.innerHTML = '';
+
       els.summativeFeedback.className = 'feedback';
       els.summativeFeedback.innerHTML = '';
+
       els.nextBtn.classList.add('hidden');
+
       showStage('intake');
       updateStats();
     }
@@ -664,7 +759,9 @@
       const mentionsEvidence = /evidence|data|fact|facts|finding|findings|symptom|symptoms|observation|observations|grounds/.test(combined);
       const mentionsConclusion = /claim|conclusion|decision|action|judgment/.test(combined);
       const contrastLanguage = /different|whereas|while|rather than|not the same|instead/.test(d);
-      const totalWords = warrantText.trim().split(/\s+/).filter(Boolean).length + differenceText.trim().split(/\s+/).filter(Boolean).length;
+      const totalWords =
+        warrantText.trim().split(/\s+/).filter(Boolean).length +
+        differenceText.trim().split(/\s+/).filter(Boolean).length;
 
       let verdict = 'developing';
       let note = 'Developing definition. You are partly there, but make the bridge function more explicit: a warrant explains why findings justify a conclusion.';
@@ -697,9 +794,288 @@
       return { verdict, note };
     }
 
+    function submitIntake(useDefaults = false) {
+      state.intakeWarrant = useDefaults
+        ? 'A warrant is the reasoning that explains why the clinical findings support the conclusion or action.'
+        : (els.defineWarrant.value.trim() || 'No response entered.');
+
+      state.intakeDifference = useDefaults
+        ? 'A warrant bridges evidence and conclusion by explaining what the evidence justifies.'
+        : (els.defineDifference.value.trim() || 'No response entered.');
+
+      const intakeAnalysis = analyzeIntakeResponse(state.intakeWarrant, state.intakeDifference);
+      state.intakeVerdict = intakeAnalysis.verdict;
+      state.intakeNote = intakeAnalysis.note;
+
+      const goodIntake = intakeAnalysis.verdict === 'strong' || intakeAnalysis.verdict === 'functional';
+
+      els.intakeFeedback.className = `feedback show ${goodIntake ? 'good' : 'bad'}`;
+      els.intakeFeedback.innerHTML = `
+        <h3>${getIntakeTitle(intakeAnalysis.verdict)}</h3>
+        <p><strong>Quick diagnostic:</strong> ${state.intakeNote}</p>
+        <p><strong>Rounds will begin in a moment.</strong> Read this note before moving on.</p>
+        <div class="section">
+          <strong>Attending note:</strong>
+          <p><strong>Grounds</strong> are the charted findings, the <strong>claim</strong> is the clinical judgment or action, and the <strong>warrant</strong> is the reasoning bridge that makes that judgment defensible.</p>
+        </div>
+      `;
+
+      setTimeout(() => {
+        state.phase = 'game';
+        showStage('game');
+        renderCase();
+      }, 2200);
+    }
+
+    function getIntakeTitle(verdict) {
+      const titles = {
+        strong: 'Strong intake.',
+        functional: 'Good intake.',
+        partial: 'Partially developed intake.',
+        'evidence-confusion': 'Intake needs revision.',
+        'too-short': 'Intake is too brief.',
+        developing: 'Intake needs development.'
+      };
+
+      return titles[verdict] || 'Intake received.';
+    }
+
+    function renderCase() {
+      const current = cases[state.index];
+
+      state.answered = false;
+
+      els.caseTitle.textContent = current.title;
+      els.roundPill.textContent = `Case ${state.index + 1} of ${cases.length}`;
+      els.claimText.textContent = current.claim;
+      els.groundsText.textContent = current.grounds;
+
+      els.feedbackBox.className = 'feedback';
+      els.feedbackBox.innerHTML = '';
+
+      els.nextBtn.classList.add('hidden');
+
+      els.options.innerHTML = '';
+
+      current.options.forEach((option, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.innerHTML = `<strong>${String.fromCharCode(65 + idx)}.</strong> ${escapeHTML(option.text)}`;
+        btn.addEventListener('click', () => handleAnswer(idx));
+        els.options.appendChild(btn);
+      });
+
+      updateStats();
+    }
+
+    function handleAnswer(choiceIndex) {
+      if (state.answered) return;
+
+      state.answered = true;
+
+      const current = cases[state.index];
+      const correctIndex = current.correct;
+      const buttons = [...document.querySelectorAll('.option')];
+      const isCorrect = choiceIndex === correctIndex;
+
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === correctIndex) btn.classList.add('correct');
+        if (idx === choiceIndex && idx !== correctIndex) btn.classList.add('wrong');
+      });
+
+      if (isCorrect) {
+        state.correct += 1;
+        state.streak += 1;
+        state.score += 110 + (state.streak - 1) * 15;
+        els.feedbackBox.className = 'feedback show good';
+      } else {
+        state.streak = 0;
+        state.wrongTypes[current.skillTag] += 1;
+        els.feedbackBox.className = 'feedback show bad';
+      }
+
+      els.feedbackBox.innerHTML = buildFeedbackHTML(current, choiceIndex, isCorrect);
+
+      els.nextBtn.textContent =
+        state.index === cases.length - 1 ? 'View Attending Report' : 'Next Case';
+
+      els.nextBtn.classList.remove('hidden');
+      updateStats();
+    }
+
+    function buildFeedbackHTML(current, choiceIndex, isCorrect) {
+      const correctIndex = current.correct;
+      const chosen = current.options[choiceIndex];
+      const correct = current.options[correctIndex];
+
+      const selectedLabel = String.fromCharCode(65 + choiceIndex);
+      const correctLabel = String.fromCharCode(65 + correctIndex);
+
+      const diagnosis = isCorrect
+        ? 'Correct clinical bridge.'
+        : 'Reasoning misdiagnosis.';
+
+      const intro = isCorrect
+        ? 'You selected the warrant that best explains why the grounds justify the claim.'
+        : 'Your choice sounded plausible, but it did not provide the strongest reasoning bridge between the grounds and the claim.';
+
+      return `
+        <h3>${diagnosis}</h3>
+        <p>${intro}</p>
+
+        <div class="feedback-grid">
+          <div class="mini-card">
+            <span class="mini-label">Claim</span>
+            <p>${escapeHTML(current.claim)}</p>
+          </div>
+
+          <div class="mini-card">
+            <span class="mini-label">Grounds</span>
+            <p>${escapeHTML(current.grounds)}</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <strong>Your selected warrant (${selectedLabel}):</strong>
+          <p>${escapeHTML(chosen.text)}</p>
+          <div class="mini-card ${isCorrect ? 'good-border' : 'bad-border'}">
+            <span class="mini-label">${isCorrect ? 'Why this works' : 'Why this is not the best bridge'}</span>
+            <p>${escapeHTML(chosen.reason)}</p>
+          </div>
+        </div>
+
+        ${
+          isCorrect
+            ? `
+              <div class="section">
+                <strong>What made this the best answer:</strong>
+                <p>${escapeHTML(getCorrectAnswerExplanation(current.skillTag))}</p>
+              </div>
+            `
+            : `
+              <div class="section">
+                <strong>Best warrant (${correctLabel}):</strong>
+                <p>${escapeHTML(correct.text)}</p>
+                <div class="mini-card good-border">
+                  <span class="mini-label">Why the correct warrant works</span>
+                  <p>${escapeHTML(correct.reason)}</p>
+                </div>
+              </div>
+            `
+        }
+
+        <div class="section">
+          <strong>What to notice:</strong>
+          <p>${escapeHTML(getSkillExplanation(current.skillTag, isCorrect))}</p>
+        </div>
+
+        <div class="section">
+          <strong>Clinical reasoning note:</strong>
+          <p>${escapeHTML(current.takeaway)}</p>
+        </div>
+      `;
+    }
+
+    function getCorrectAnswerExplanation(skillTag) {
+      const explanations = {
+        'claim-repeat':
+          'This warrant does not merely repeat the chart data. It explains what the data shows about the effectiveness of the current plan or method.',
+        'overgeneralization':
+          'This warrant avoids absolute language. It shows that the evidence makes the claim reasonable without pretending the evidence proves more than it does.',
+        'irrelevant':
+          'This warrant stays focused on the exact inference required by the claim. It does not drift into a generally related clinical procedure.',
+        'strong-link':
+          'This warrant creates a direct bridge from the specific findings to the specific clinical conclusion or action.'
+      };
+
+      return explanations[skillTag] || 'This answer works because it explains why the stated grounds make the stated claim reasonable.';
+    }
+
+    function getSkillExplanation(skillTag, isCorrect) {
+      if (isCorrect) {
+        return 'This answer functions as a warrant because it does more than repeat the grounds. It states the reasoning principle that allows the claim to follow.';
+      }
+
+      const explanations = {
+        'claim-repeat':
+          'This kind of error happens when an answer mostly restates the evidence. A warrant should explain what the evidence means, not simply rename it.',
+
+        'overgeneralization':
+          'This kind of error happens when the answer uses a rule that is too broad or too absolute. Warrants should justify the claim without exaggerating what the evidence proves.',
+
+        'irrelevant':
+          'This kind of error happens when an answer sounds clinically related but does not actually connect the grounds to the claim. Topic relevance is not the same as warrant logic.',
+
+        'strong-link':
+          'This miss usually means the answer did not create a strong enough bridge between the specific findings and the specific clinical action.'
+      };
+
+      return explanations[skillTag] || 'Look for the answer that best explains why these grounds make this claim reasonable.';
+    }
+
+    function finishGame() {
+      state.phase = 'results';
+      showStage('results');
+      updateStats();
+
+      const pct = Math.round((state.correct / cases.length) * 100);
+
+      let summary = `You completed rounds with ${state.correct} correct out of ${cases.length} (${pct}%). `;
+
+      if (pct >= 90) {
+        summary += 'Your warrant recognition was sharp: you consistently distinguished sound clinical reasoning from paraphrase, overstatement, and topic-only relevance.';
+      } else if (pct >= 70) {
+        summary += 'Your clinical reasoning is developing well, though some distractors still pulled you toward statements that sounded relevant without functioning as warrants.';
+      } else {
+        summary += 'You are beginning to identify warrants, but you still need practice separating evidence itself from the principle that explains what the evidence justifies.';
+      }
+
+      els.finalSummary.textContent = summary;
+
+      els.performanceList.innerHTML = [
+        `Final score: ${state.score}`,
+        `Correct warrants identified: ${state.correct}`,
+        `Cases completed: ${cases.length}`,
+        `Clinical reasoning meter: ${pct}%`,
+        `Final streak: ${state.streak}`
+      ].map(item => `<li>${escapeHTML(item)}</li>`).join('');
+
+      const wt = state.wrongTypes;
+      const advice = [];
+
+      if (Object.values(wt).every(v => v === 0)) {
+        advice.push('You avoided the common warrant errors of paraphrase, overgeneralization, and topic-only relevance.');
+        advice.push('You are ready for a harder version that asks students to draft their own warrants before selecting an option.');
+      } else {
+        if (wt['claim-repeat'] > 0) {
+          advice.push('Watch for answers that merely restate symptoms or chart details. Grounds are data; warrants explain what that data justifies.');
+        }
+
+        if (wt['overgeneralization'] > 0) {
+          advice.push('Be cautious of absolute language like “always.” Strong warrants justify a claim without turning it into certainty.');
+        }
+
+        if (wt['irrelevant'] > 0) {
+          advice.push('Some distractors sounded medically relevant but did not actually bridge the logic. Topic relevance is not warrant function.');
+        }
+
+        if (wt['strong-link'] > 0) {
+          advice.push('A useful test: place the option between the grounds and the claim. If the argument suddenly makes sense, you likely found the warrant.');
+        }
+      }
+
+      els.adviceList.innerHTML = advice.map(item => `<li>${escapeHTML(item)}</li>`).join('');
+
+      els.savedIntakeNote.textContent = state.intakeNote || 'No intake diagnostic available.';
+      els.savedWarrant.textContent = state.intakeWarrant;
+      els.savedDifference.textContent = state.intakeDifference;
+    }
+
     function analyzeSummativeResponse(text) {
       const t = text.toLowerCase();
       const words = text.trim().split(/\s+/).filter(Boolean).length;
+
       const mentionsWhy = /why|because|justify|support|reasoning|logic|bridge|connect|link/.test(t);
       const mentionsRisk = /wrong|error|mistake|unsafe|jump|assum|unsupported|weak|flaw|misread|bad decision|poor decision/.test(t);
       const mentionsEvidence = /evidence|data|finding|findings|symptom|symptoms|grounds/.test(t);
@@ -732,146 +1108,41 @@
       return { verdict, title, body, cls };
     }
 
-    function submitIntake(useDefaults = false) {
-      state.intakeWarrant = useDefaults
-        ? 'A warrant is the reasoning that explains why the clinical findings support the conclusion or action.'
-        : (els.defineWarrant.value.trim() || 'No response entered.');
-      state.intakeDifference = useDefaults
-        ? 'A warrant bridges evidence and conclusion by explaining what the evidence justifies.'
-        : (els.defineDifference.value.trim() || 'No response entered.');
-
-      const intakeAnalysis = analyzeIntakeResponse(state.intakeWarrant, state.intakeDifference);
-      state.intakeVerdict = intakeAnalysis.verdict;
-      state.intakeNote = intakeAnalysis.note;
-
-      els.intakeFeedback.className = `feedback show ${intakeAnalysis.verdict === 'strong' || intakeAnalysis.verdict === 'functional' ? 'good' : 'bad'}`;
-      els.intakeFeedback.innerHTML = `
-        <h3>${intakeAnalysis.verdict === 'strong' ? 'Strong intake.' : intakeAnalysis.verdict === 'functional' ? 'Good intake.' : intakeAnalysis.verdict === 'partial' ? 'Partially developed intake.' : intakeAnalysis.verdict === 'evidence-confusion' ? 'Intake needs revision.' : intakeAnalysis.verdict === 'too-short' ? 'Intake is too brief.' : 'Intake needs development.'}</h3>
-        <p><strong>Quick diagnostic:</strong> ${state.intakeNote}</p>
-        <p><strong>Rounds will begin in a moment.</strong> Read this note before moving on.</p>
-        <div class="section">
-          <strong>Attending note:</strong>
-          <p><strong>Grounds</strong> are the charted findings, the <strong>claim</strong> is the clinical judgment or action, and the <strong>warrant</strong> is the reasoning bridge that makes that judgment defensible.</p>
-        </div>
-      `;
-
-      setTimeout(() => {
-        state.phase = 'game';
-        showStage('game');
-        renderCase();
-      }, 2200);
-    }
-
-    function renderCase() {
-      const current = cases[state.index];
-      state.answered = false;
-      els.caseTitle.textContent = current.title;
-      els.roundPill.textContent = `Case ${state.index + 1} of ${cases.length}`;
-      els.claimText.textContent = current.claim;
-      els.groundsText.textContent = current.grounds;
-      els.feedbackBox.className = 'feedback';
-      els.nextBtn.classList.add('hidden');
-      els.options.innerHTML = '';
-      current.options.forEach((option, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'option';
-        btn.innerHTML = `<strong>${String.fromCharCode(65 + idx)}.</strong> ${option.text}`;
-        btn.addEventListener('click', () => handleAnswer(idx));
-        els.options.appendChild(btn);
-      });
-      updateStats();
-    }
-
-    function handleAnswer(choiceIndex) {
-      if (state.answered) return;
-      state.answered = true;
-      const current = cases[state.index];
-      const correctIndex = current.correct;
-      const buttons = [...document.querySelectorAll('.option')];
-      const isCorrect = choiceIndex === correctIndex;
-      buttons.forEach((btn, idx) => {
-        btn.disabled = true;
-        if (idx === correctIndex) btn.classList.add('correct');
-        if (idx === choiceIndex && idx !== correctIndex) btn.classList.add('wrong');
-      });
-      if (isCorrect) {
-        state.correct += 1;
-        state.streak += 1;
-        state.score += 110 + (state.streak - 1) * 15;
-        els.feedbackBox.classList.add('show', 'good');
-        els.feedbackTitle.textContent = 'Correct clinical bridge.';
-        els.feedbackIntro.textContent = 'You identified the warrant that best explains why the grounds support the claim.';
-      } else {
-        state.streak = 0;
-        state.wrongTypes[current.skillTag] += 1;
-        els.feedbackBox.classList.add('show', 'bad');
-        els.feedbackTitle.textContent = 'Reasoning misdiagnosis.';
-        els.feedbackIntro.textContent = 'This option sounded plausible, but it did not supply the best inferential bridge.';
-      }
-      els.correctWhy.textContent = current.options[correctIndex].reason;
-      els.choiceWhy.textContent = current.options[choiceIndex].reason;
-      els.takeaway.textContent = current.takeaway;
-      els.nextBtn.textContent = state.index === cases.length - 1 ? 'View Attending Report' : 'Next Case';
-      els.nextBtn.classList.remove('hidden');
-      updateStats();
-    }
-
-    function finishGame() {
-      state.phase = 'results';
-      showStage('results');
-      updateStats();
-      const pct = Math.round((state.correct / cases.length) * 100);
-      let summary = `You completed rounds with ${state.correct} correct out of ${cases.length} (${pct}%). `;
-      if (pct >= 90) {
-        summary += 'Your warrant recognition was sharp: you consistently distinguished sound clinical reasoning from paraphrase, overstatement, and topic-only relevance.';
-      } else if (pct >= 70) {
-        summary += 'Your clinical reasoning is developing well, though some distractors still pulled you toward statements that sounded relevant without functioning as warrants.';
-      } else {
-        summary += 'You are beginning to identify warrants, but you still need practice separating evidence itself from the principle that explains what the evidence justifies.';
-      }
-      els.finalSummary.textContent = summary;
-      els.performanceList.innerHTML = [
-        `Final score: ${state.score}`,
-        `Correct warrants identified: ${state.correct}`,
-        `Cases completed: ${cases.length}`,
-        `Clinical reasoning meter: ${pct}%`,
-        `Final streak: ${state.streak}`
-      ].map(item => `<li>${item}</li>`).join('');
-      const wt = state.wrongTypes;
-      const advice = [];
-      if (Object.values(wt).every(v => v === 0)) {
-        advice.push('You avoided the common warrant errors of paraphrase, overgeneralization, and topic-only relevance.');
-        advice.push('You are ready for a harder version that asks students to draft their own warrants before selecting an option.');
-      } else {
-        if (wt['claim-repeat'] > 0) advice.push('Watch for answers that merely restate symptoms or chart details. Grounds are data; warrants explain what that data justifies.');
-        if (wt['overgeneralization'] > 0) advice.push('Be cautious of absolute language like “always.” Strong warrants justify a claim without turning it into certainty.');
-        if (wt['irrelevant'] > 0) advice.push('Some distractors sounded medically relevant but did not actually bridge the logic. Topic relevance is not warrant function.');
-        if (wt['strong-link'] > 0) advice.push('A useful test: place the option between the grounds and the claim. If the argument suddenly makes sense, you likely found the warrant.');
-      }
-      els.adviceList.innerHTML = advice.map(item => `<li>${item}</li>`).join('');
-      els.savedIntakeNote.textContent = state.intakeNote || 'No intake diagnostic available.';
-      els.savedWarrant.textContent = state.intakeWarrant;
-      els.savedDifference.textContent = state.intakeDifference;
-    }
-
     function submitSummative() {
       const response = els.summativeResponse.value.trim();
       const analysis = analyzeSummativeResponse(response);
+
       state.summativeVerdict = analysis.verdict;
       state.summativeNote = analysis.body;
+
       els.summativeFeedback.className = `feedback show ${analysis.cls}`;
       els.summativeFeedback.innerHTML = `
-        <h3>${analysis.title}</h3>
-        <p>${analysis.body}</p>
+        <h3>${escapeHTML(analysis.title)}</h3>
+        <p>${escapeHTML(analysis.body)}</p>
       `;
+    }
+
+    function escapeHTML(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     els.submitIntakeBtn.addEventListener('click', () => submitIntake(false));
     els.skipIntakeBtn.addEventListener('click', () => submitIntake(true));
+
     els.nextBtn.addEventListener('click', () => {
-      if (state.index === cases.length - 1) finishGame();
-      else { state.index += 1; renderCase(); }
+      if (state.index === cases.length - 1) {
+        finishGame();
+      } else {
+        state.index += 1;
+        renderCase();
+      }
     });
+
     els.restartBtn.addEventListener('click', startNewShift);
     els.playAgainBtn.addEventListener('click', startNewShift);
     els.submitSummativeBtn.addEventListener('click', submitSummative);
@@ -880,3 +1151,8 @@
   </script>
 </body>
 </html>
+'''
+
+path = Path("/mnt/data/warrant_ward_feedback_expanded.html")
+path.write_text(html, encoding="utf-8")
+path
